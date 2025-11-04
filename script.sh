@@ -10,12 +10,12 @@ function copyff() {
 	cp "$SCRIPT_DIR/fastfetch.conf" $fastfetch_conf
 }
 
-if which fastfetch > /dev/null 2>&1;
+
+if [[ $(which fastfetch > /dev/null 2>&1) || $(ls /usr/share/fonts/TTF | grep Nerd) ]];
 then
 	echo "fastfetch существует"
 	fastfetch=1
 fi
-
 
 
 if [[ -f "$fastfetch_conf" && $fastfetch = 1 ]];
@@ -35,6 +35,6 @@ elif test $fastfetch = 1;
 then
 	copyff
 else
-	echo "fastfetch не найден"
+	echo "fastfetch не найден либо Nerd шрифт не найден"
 fi
 exit 0
