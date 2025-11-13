@@ -2,10 +2,14 @@
 
 SCRIPT_DIR=$(dirname "$0")
 fastfetch_conf="$HOME/.config/fastfetch/config.jsonc"
-fastfetch=false
-obtheme=false
-qt=false
+kitty_conf="$HOME/.config/kitty/kitty.conf"
 
+
+obtheme=$(which obconf > /dev/zero; echo $?)
+obthemeQt=$(which obconf-qt > /dev/zero; echo $?)
+fastfetch=$(which fastfetch > /dev/zero; echo $?)
+jbmNerd=$(fc-list | grep JetBrainsMonoNerd > /dev/zero; echo $?)
+kitty=$(which kitty > /dev/zero; echo $?)
 
 
 function copyff() {
@@ -13,38 +17,42 @@ function copyff() {
 	cp "$SCRIPT_DIR/fastfetch.conf" $fastfetch_conf
 }
 
+function copykt() {
+	echo "Копируем файл конфигурации kitty в $kitty_conf"
+	cp "$SCRIPT_DIR/fastfetch.conf" $fastfetch_conf
+}
 
-if [[ $(which fastfetch > /dev/null 2>&1) || $(ls /usr/share/fonts/TTF | grep Nerd) ]];
+if test obtheme = 0;
 then
-	echo "fastfetch существует"
-	fastfetch=true
+	obconf --install Infetheme.obt
+elif test obthemeQt = 0;
+then
+	obconf-qt --install Infetheme.obt
+	echo "Тема установлена"
 fi
-if [[ $(which obtheme > /dev/null 2>&1) ]];
+
+
+if [[ -f "$kitty_conf" && $kitty = 0 && $jbmNerd = 0 ]];
 then
-	echo "obtheme существует"
-	obtheme=true
-elif [[ $(which obtheme-qt > /dev/null 2>&1) ]]
-then
-	echo "obtheme-qt существует"
-	obtheme=true
-	qt=true
-fi
-if test obtheme;
-then
-	if test qt;
+	echo "Заменить файл конфигурации kitty?"
+	read answ
+	if [[ $answ = 'y' || $answ = 'yes' ]];
 	then
-		obconf-qt --install Infetheme.obt
-		echo "Тема установлена"
+		copykt
+	elif [[ $answ = 'n' || $answ = 'no' ]];
+	then
+		echo "Копирование не будет выполнено"
 	else
-		obconf --install Infetheme.obt
+		echo "Неизвестный ответ"
 	fi
+elif [[ $kitty = 0 && $jbmNerd = 0 ]];
+then
+	copykt
+else
+	echo "kitty либо JetBrainsNerdFont не найден"
 fi
 
-
-
-
-
-if [[ -f "$fastfetch_conf" && $fastfetch = true ]];
+if [[ -f "$fastfetch_conf" && $fastfetch = 0 && $jbmNerd = 0 ]];
 then
 	echo "Заменить файл конфигурации fastfetch?"
 	read answ
@@ -57,7 +65,7 @@ then
 	else
 		echo "Неизвестная команда"
 	fi
-elif test $fastfetch = true;
+elif [[ $fastfetch = 0 && $jbmNerd = 0 ]];
 then
 	copyff
 else
